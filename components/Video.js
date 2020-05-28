@@ -64,7 +64,8 @@ class Video extends Component {
       progress: 0,
       currentTime: 0,
       seeking: false,
-      renderError: false
+      renderError: false,
+      maxProgress: 0
     }
     this.animInline = new Animated.Value(Win.width * 0.5625)
     this.animFullscreen = new Animated.Value(Win.width * 0.5625)
@@ -118,6 +119,12 @@ class Video extends Component {
         }
       }
     })
+
+    if(this.props.initialTime) {
+      this.setState({ progress: this.props.initialTime / data.duration, seeking: false }, () => {
+        this.player.seek(this.props.initialTime)
+      })
+    }
   }
 
   // onBuffer() {
@@ -165,8 +172,11 @@ class Video extends Component {
   }
 
   onSeekRelease(percent) {
-    const seconds = percent * this.state.duration
-    this.setState({ progress: percent, seeking: false }, () => {
+    var progress = (this.props.allowBack && percent < this.state.maxProgress)
+                    || !this.props.allowBack ? percent : this.state.maxProgress
+    const seconds = progress * this.state.duration
+
+    this.setState({ progress, seeking: false }, () => {
       this.player.seek(seconds)
     })
   }
@@ -301,6 +311,9 @@ class Video extends Component {
     const { currentTime } = time
     const progress = currentTime / this.state.duration
     if (!this.state.seeking) {
+      if(progress > this.state.maxProgress) {
+        this.setState({maxProgress: progress})
+      }
       this.setState({ progress, currentTime }, () => {
         this.props.onProgress(time)
       })
@@ -485,7 +498,9 @@ Video.propTypes = {
   retryColor: PropTypes.string,
   backgroundControlColor: PropTypes.string,
   seekLocked: PropTypes.bool,
-  playerWidth: PropTypes.number
+  playerWidth: PropTypes.number,
+  allowBack: PropTypes.bool,
+  initialTime: PropTypes.number
 }
 
 Video.defaultProps = {
@@ -520,6 +535,8 @@ Video.defaultProps = {
   backgroundControlColor: 'rgba(0, 0, 0, 0.4)',
   seekLocked: false,
   playerWidth: undefined,
+  allowBack: false,
+  initialTime: 0
 }
 
 export default Video
