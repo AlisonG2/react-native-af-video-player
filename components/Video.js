@@ -120,9 +120,9 @@ class Video extends Component {
       }
     })
 
-    if(this.props.initialTime) {
-      this.setState({ progress: this.props.initialTime / data.duration, seeking: false }, () => {
-        this.player.seek(this.props.initialTime)
+    if(this.props.initialProgress) {
+      this.setState({ progress: (this.props.initialProgress / 100), seeking: false }, () => {
+        this.player.seek((this.props.initialProgress / 100) * data.duration)
       })
     }
   }
@@ -500,7 +500,7 @@ Video.propTypes = {
   seekLocked: PropTypes.bool,
   playerWidth: PropTypes.number,
   allowBack: PropTypes.bool,
-  initialTime: PropTypes.number
+  initialProgress: PropTypes.number
 }
 
 Video.defaultProps = {
@@ -536,7 +536,7 @@ Video.defaultProps = {
   seekLocked: false,
   playerWidth: undefined,
   allowBack: false,
-  initialTime: 0
+  initialProgress: 0
 }
 
 export default Video
